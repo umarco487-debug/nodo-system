@@ -3,40 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Innovatec NODO PRO</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<title>Innovatec PRO</title>
 
 <style>
 
 body{
-font-family:Arial;
 margin:0;
+font-family:Arial;
 color:white;
-background:url("fondo.jpg");
+background:url("header_mob2.png");
 background-size:cover;
 background-position:center;
 }
 
 header{
-background:rgba(0,0,0,0.6);
+background:rgba(0,0,0,0.7);
 padding:20px;
 text-align:center;
 }
 
 .container{
 padding:30px;
-background:rgba(15,23,42,0.85);
-min-height:100vh;
 }
 
-input{
-padding:10px;
-margin:5px;
-width:260px;
-border-radius:6px;
-border:none;
+.card{
+background:rgba(0,0,0,0.7);
+padding:20px;
+border-radius:10px;
+width:320px;
+margin-top:20px;
 }
 
 button{
@@ -45,19 +40,16 @@ background:#38bdf8;
 border:none;
 cursor:pointer;
 font-weight:bold;
-border-radius:6px;
-}
-
-.card{
-background:#1e293b;
-padding:20px;
-margin-top:20px;
-border-radius:12px;
-width:300px;
+margin-top:10px;
 }
 
 .hidden{
 display:none;
+}
+
+video{
+width:100%;
+margin-top:15px;
 }
 
 </style>
@@ -67,69 +59,70 @@ display:none;
 
 <header>
 <h1>Innovatec</h1>
-<p>Sistema NODO TECNM PRO</p>
+<p>Sistema NODO TECNM</p>
 </header>
 
-<div class="container">
+<div class="container" id="inicio">
 
-<h2>Registro Usuario</h2>
+<h2>Selecciona Proyecto</h2>
 
-<input id="nombre" placeholder="Nombre"><br>
-<input id="control" placeholder="UID TARJETA"><br>
-<input id="carrera" placeholder="Carrera"><br>
+<div class="card">
 
-<button onclick="registrar()">Crear Credencial</button>
+<button onclick="abrirProyecto('impresora')">Impresora 3D</button><br>
+<button onclick="abrirProyecto('laser')">CNC Láser</button><br>
+<button onclick="abrirProyecto('soldar')">Máquina Soldar</button>
 
-<div id="tarjeta" class="card hidden">
-<h3>Credencial Digital</h3>
-<p id="info"></p>
-<div id="qrcode"></div>
 </div>
+
+</div>
+
+<div class="container hidden" id="proyecto">
+
+<h2 id="tituloProyecto"></h2>
+
+<p id="descripcion"></p>
+
+<video id="videoProyecto" controls></video>
+
+<br>
+<button onclick="volver()">⬅ Regresar al inicio</button>
 
 </div>
 
 <script>
 
-// 🔥 AUTO DETECTA TARJETA DESDE ESP32
-setInterval(()=>{
+function abrirProyecto(tipo){
 
-fetch("/lastuid")
-.then(r=>r.text())
-.then(uid=>{
+document.getElementById("inicio").classList.add("hidden");
+document.getElementById("proyecto").classList.remove("hidden");
 
-if(uid!="" && uid!="null"){
-document.getElementById("control").value = uid;
+let titulo = document.getElementById("tituloProyecto");
+let desc = document.getElementById("descripcion");
+let video = document.getElementById("videoProyecto");
+
+if(tipo==="impresora"){
+titulo.innerHTML="Impresora 3D";
+desc.innerHTML="Uso básico de impresión 3D dentro del laboratorio Innovatec.";
+video.src="impresora.mp4";
 }
 
-});
-
-},1200);
-
-
-// 🔥 CREAR CREDENCIAL
-function registrar(){
-
-let nombre=document.getElementById("nombre").value;
-let control=document.getElementById("control").value;
-let carrera=document.getElementById("carrera").value;
-
-if(nombre==""||control==""||carrera==""){
-alert("Completa todo");
-return;
+if(tipo==="laser"){
+titulo.innerHTML="CNC Láser";
+desc.innerHTML="Proceso de corte láser para proyectos escolares.";
+video.src="laser.mp4";
 }
 
-let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
+if(tipo==="soldar"){
+titulo.innerHTML="Máquina de Soldar";
+desc.innerHTML="Técnicas básicas de soldadura segura.";
+video.src="soldar.mp4";
+}
 
-document.getElementById("info").innerHTML=
-"Nombre: "+nombre+"<br>"+
-"UID: "+control+"<br>"+
-"Carrera: "+carrera;
+}
 
-document.getElementById("tarjeta").classList.remove("hidden");
-
-document.getElementById("qrcode").innerHTML="";
-new QRCode(document.getElementById("qrcode"),link);
-
+function volver(){
+document.getElementById("inicio").classList.remove("hidden");
+document.getElementById("proyecto").classList.add("hidden");
 }
 
 </script>
