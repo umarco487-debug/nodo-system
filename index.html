@@ -2,88 +2,136 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>INNOVATEC RFID</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Innovatec NODO PRO</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
+
 body{
-  background:#0f172a;
-  color:white;
-  font-family:Arial;
-  text-align:center;
+font-family:Arial;
+margin:0;
+color:white;
+background:url("fondo.jpg");
+background-size:cover;
+background-position:center;
 }
-.card{
-  background:#1e293b;
-  padding:20px;
-  margin:auto;
-  margin-top:20px;
-  width:300px;
-  border-radius:10px;
+
+header{
+background:rgba(0,0,0,0.6);
+padding:20px;
+text-align:center;
 }
-input, button{
-  margin-top:10px;
-  padding:5px;
-  width:90%;
-  border-radius:5px;
-  border:none;
+
+.container{
+padding:30px;
+background:rgba(15,23,42,0.85);
+min-height:100vh;
 }
+
+input{
+padding:10px;
+margin:5px;
+width:260px;
+border-radius:6px;
+border:none;
+}
+
 button{
-  background:#3b82f6;
-  color:white;
-  cursor:pointer;
+padding:10px 15px;
+background:#38bdf8;
+border:none;
+cursor:pointer;
+font-weight:bold;
+border-radius:6px;
 }
+
+.card{
+background:#1e293b;
+padding:20px;
+margin-top:20px;
+border-radius:12px;
+width:300px;
+}
+
+.hidden{
+display:none;
+}
+
 </style>
 </head>
+
 <body>
 
-<h1>INNOVATEC RFID</h1>
+<header>
+<h1>Innovatec</h1>
+<p>Sistema NODO TECNM PRO</p>
+</header>
 
-<div class="card">
-  <h3 id="estado">Esperando tarjeta...</h3>
-  <p id="uid"></p>
+<div class="container">
 
-  <!-- Formulario para registrar usuario -->
-  <div id="registro" style="display:none;">
-    <input type="text" id="username" placeholder="Nombre de usuario">
-    <button onclick="registrarUsuario()">Registrar Usuario</button>
-  </div>
+<h2>Registro Usuario</h2>
 
-  <!-- Mensaje de éxito -->
-  <p id="mensaje" style="color:lightgreen;"></p>
+<input id="nombre" placeholder="Nombre"><br>
+<input id="control" placeholder="UID TARJETA"><br>
+<input id="carrera" placeholder="Carrera"><br>
+
+<button onclick="registrar()">Crear Credencial</button>
+
+<div id="tarjeta" class="card hidden">
+<h3>Credencial Digital</h3>
+<p id="info"></p>
+<div id="qrcode"></div>
+</div>
+
 </div>
 
 <script>
-let ultimoUID = "";
 
-// Función que consulta el UID al ESP32
-async function actualizarUID() {
-  try {
-    const response = await fetch("/lastuid");
-    const uid = await response.text();
-    if(uid && uid !== ultimoUID){
-      ultimoUID = uid;
-      document.getElementById("uid").innerText = "UID: " + uid;
-      document.getElementById("estado").innerText = "Tarjeta registrada ✅";
-      document.getElementById("registro").style.display = "block";
-      document.getElementById("mensaje").innerText = "";
-    }
-  } catch(err) {
-    console.log("Error al obtener UID:", err);
-  }
+// 🔥 AUTO DETECTA TARJETA DESDE ESP32
+setInterval(()=>{
+
+fetch("/lastuid")
+.then(r=>r.text())
+.then(uid=>{
+
+if(uid!="" && uid!="null"){
+document.getElementById("control").value = uid;
 }
 
-// Registrar usuario
-function registrarUsuario() {
-  const username = document.getElementById("username").value.trim();
-  if(username){
-    document.getElementById("mensaje").innerText = `Usuario "${username}" registrado con UID ${ultimoUID}`;
-    document.getElementById("username").value = "";
-    // Aquí podrías enviar username+UID al ESP32 si quieres guardarlo
-  } else {
-    document.getElementById("mensaje").innerText = "Ingrese un nombre de usuario";
-  }
+});
+
+},1200);
+
+
+// 🔥 CREAR CREDENCIAL
+function registrar(){
+
+let nombre=document.getElementById("nombre").value;
+let control=document.getElementById("control").value;
+let carrera=document.getElementById("carrera").value;
+
+if(nombre==""||control==""||carrera==""){
+alert("Completa todo");
+return;
 }
 
-// Actualiza cada 1 segundo
-setInterval(actualizarUID, 1000);
+let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
+
+document.getElementById("info").innerHTML=
+"Nombre: "+nombre+"<br>"+
+"UID: "+control+"<br>"+
+"Carrera: "+carrera;
+
+document.getElementById("tarjeta").classList.remove("hidden");
+
+document.getElementById("qrcode").innerHTML="";
+new QRCode(document.getElementById("qrcode"),link);
+
+}
+
 </script>
 
 </body>
