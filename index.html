@@ -3,92 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INOVATEC</title>
+<title>Innovatec</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-
-/* 🔥 FONDO TECNOLOGICO */
-body{
-    font-family: Arial, sans-serif;
-    margin:0;
-    color:white;
-    background-image:url("https://images.unsplash.com/photo-1518770660439-4636190af475");
-    background-size:cover;
-    background-position:center;
-    background-attachment:fixed;
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #0f172a;
+    color: white;
 }
 
-/* 🔥 HEADER ESTILO TECNM */
-header{
-    background:rgba(15,23,42,0.9);
-    text-align:center;
-    padding:15px;
-    backdrop-filter:blur(10px);
+/* 🔥 HEADER PRO */
+header {
+    background: linear-gradient(90deg,#0f172a,#1e293b);
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0px 0px 15px #000;
 }
 
-header img{
-    max-width:500px;
-    width:100%;
-}
-
-/* 🔥 CONTENEDOR EFECTO VIDRIO */
-.container{
-    padding:30px;
-    margin:30px auto;
-    width:90%;
-    max-width:600px;
-    background:rgba(15,23,42,0.75);
-    backdrop-filter:blur(12px);
-    border-radius:15px;
-    box-shadow:0 0 20px rgba(0,0,0,0.4);
-}
-
-/* INPUTS */
-input,select,textarea{
-    padding:10px;
-    margin:6px;
+.logoTec{
     width:260px;
+    margin-bottom:10px;
+    filter: drop-shadow(0px 0px 8px #38bdf8);
+}
+
+.container {
+    padding: 30px;
+}
+
+input, select, textarea {
+    padding: 10px;
+    margin: 5px;
+    width: 260px;
     border-radius:6px;
     border:none;
 }
 
-/* BOTON PRO */
-button{
-    padding:12px 18px;
-    background:#0ea5e9;
-    border:none;
-    cursor:pointer;
-    font-weight:bold;
-    border-radius:8px;
-    transition:.3s;
+button {
+    padding: 10px 15px;
+    background: #38bdf8;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    border-radius:6px;
 }
 
 button:hover{
-    background:#38bdf8;
-    transform:scale(1.05);
+    background:#0ea5e9;
 }
 
-/* TARJETA QR */
-.card{
-    background:#1e293b;
-    padding:20px;
-    margin-top:20px;
-    border-radius:12px;
-    width:300px;
-    box-shadow:0 0 15px rgba(0,0,0,0.5);
+.card {
+    background: #1e293b;
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 12px;
+    width: 300px;
+    box-shadow:0px 0px 15px #020617;
 }
 
-.hidden{
-    display:none;
+.hidden {
+    display: none;
 }
-
-h1{
-    margin:10px 0 5px;
-    letter-spacing:2px;
-}
-
 </style>
 </head>
 
@@ -96,11 +73,11 @@ h1{
 
 <header>
 
-<!-- 🔥 LOGO TECNM -->
-<img src="https://cdjuarez.tecnm.mx/img/header/header_mob2.png">
+    <!-- 🔥 LOGO DEL TEC (archivo local) -->
+    <img src="logo.png" class="logoTec">
 
-<h1>INOVATEC</h1>
-<p>Sistema de Control NODO</p>
+    <h1>Innovatec</h1>
+    <p>Sistema de Control NODO</p>
 
 </header>
 
@@ -115,56 +92,52 @@ h1{
 <button onclick="registrar()">Registrar</button>
 
 <div id="tarjeta" class="card hidden">
-<h3>Credencial Digital</h3>
-<p id="info"></p>
-<div id="qrcode"></div>
+    <h3>Credencial Digital</h3>
+    <p id="info"></p>
+    <div id="qrcode"></div>
 </div>
 
 <div id="proyectoSection" class="hidden">
-<h2>Registrar Proyecto</h2>
-<input type="text" placeholder="Nombre del Proyecto"><br>
-<select>
-<option>Impresora 3D</option>
-<option>CNC Láser</option>
-<option>Máquina de Soldar</option>
-</select><br>
-<textarea placeholder="Descripción del Proyecto"></textarea><br>
-<button>Guardar Proyecto</button>
+    <h2>Registrar Proyecto</h2>
+    <input type="text" placeholder="Nombre del Proyecto"><br>
+    <select>
+        <option>Impresora 3D</option>
+        <option>CNC Láser</option>
+        <option>Máquina de Soldar</option>
+    </select><br>
+    <textarea placeholder="Descripción del Proyecto"></textarea><br>
+    <button>Guardar Proyecto</button>
 </div>
 
 </div>
 
 <script>
+function registrar() {
 
-function registrar(){
+    let nombre = document.getElementById("nombre").value;
+    let control = document.getElementById("control").value;
+    let carrera = document.getElementById("carrera").value;
 
-let nombre=document.getElementById("nombre").value;
-let control=document.getElementById("control").value;
-let carrera=document.getElementById("carrera").value;
+    if(nombre === "" || control === "" || carrera === ""){
+        alert("Completa todos los campos");
+        return;
+    }
 
-if(nombre===""||control===""||carrera===""){
-alert("Completa todos los campos");
-return;
+    // 🔥 CAMBIA SOLO ESTA URL SI CAMBIA TU REPO
+    let link = "https://innovatec-debug.github.io/rfid-innovatecc/?user=" + control;
+
+    document.getElementById("info").innerHTML =
+        "Nombre: " + nombre + "<br>" +
+        "No. Control: " + control + "<br>" +
+        "Carrera: " + carrera;
+
+    document.getElementById("tarjeta").classList.remove("hidden");
+    document.getElementById("proyectoSection").classList.remove("hidden");
+
+    document.getElementById("qrcode").innerHTML = "";
+
+    new QRCode(document.getElementById("qrcode"), link);
 }
-
-/* 🔥 CAMBIA ESTA URL SI CAMBIA TU REPO */
-let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
-
-document.getElementById("info").innerHTML=
-"Nombre: "+nombre+"<br>"+
-"No. Control: "+control+"<br>"+
-"Carrera: "+carrera;
-
-document.getElementById("tarjeta").classList.remove("hidden");
-document.getElementById("proyectoSection").classList.remove("hidden");
-
-/* limpiar QR anterior */
-document.getElementById("qrcode").innerHTML="";
-
-new QRCode(document.getElementById("qrcode"),link);
-
-}
-
 </script>
 
 </body>
