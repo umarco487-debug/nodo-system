@@ -3,61 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Innovatec NODO PRO</title>
+<title>Innovatec</title>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
 
 body{
-font-family:Arial;
-margin:0;
-color:white;
-background:url("fondo.jpg");
-background-size:cover;
-background-position:center;
+    font-family: Arial;
+    margin:0;
+    color:white;
+
+    /* 🔥 FONDO TECNM */
+    background:url("fondo.jpg");
+    background-size:cover;
+    background-position:center;
 }
 
 header{
-background:rgba(0,0,0,0.6);
-padding:20px;
-text-align:center;
+    background:rgba(0,0,0,0.6);
+    padding:20px;
+    text-align:center;
 }
 
 .container{
-padding:30px;
-background:rgba(15,23,42,0.85);
-min-height:100vh;
+    padding:30px;
+    background:rgba(15,23,42,0.85);
+    min-height:100vh;
 }
 
-input{
-padding:10px;
-margin:5px;
-width:260px;
-border-radius:6px;
-border:none;
+input,select{
+    padding:10px;
+    margin:5px;
+    width:260px;
+    border-radius:6px;
+    border:none;
 }
 
 button{
-padding:10px 15px;
-background:#38bdf8;
-border:none;
-cursor:pointer;
-font-weight:bold;
-border-radius:6px;
+    padding:10px 15px;
+    background:#38bdf8;
+    border:none;
+    cursor:pointer;
+    font-weight:bold;
+    border-radius:6px;
 }
 
 .card{
-background:#1e293b;
-padding:20px;
-margin-top:20px;
-border-radius:12px;
-width:300px;
+    background:#1e293b;
+    padding:20px;
+    margin-top:20px;
+    border-radius:12px;
+    width:300px;
 }
 
 .hidden{
-display:none;
+    display:none;
+}
+
+.videoBox{
+    background:#020617;
+    padding:20px;
+    border-radius:12px;
+    max-width:700px;
+}
+
+iframe{
+    width:100%;
+    height:350px;
+    border:none;
+    border-radius:10px;
 }
 
 </style>
@@ -67,18 +82,19 @@ display:none;
 
 <header>
 <h1>Innovatec</h1>
-<p>Sistema NODO TECNM PRO</p>
+<p>Sistema NODO TECNM</p>
 </header>
 
 <div class="container">
 
+<!-- 🔥 REGISTRO -->
 <h2>Registro Usuario</h2>
 
-<input id="nombre" placeholder="Nombre"><br>
-<input id="control" placeholder="UID TARJETA"><br>
-<input id="carrera" placeholder="Carrera"><br>
+<input type="text" id="nombre" placeholder="Nombre"><br>
+<input type="text" id="control" placeholder="Número de Control"><br>
+<input type="text" id="carrera" placeholder="Carrera"><br>
 
-<button onclick="registrar()">Crear Credencial</button>
+<button onclick="registrar()">Registrar</button>
 
 <div id="tarjeta" class="card hidden">
 <h3>Credencial Digital</h3>
@@ -86,35 +102,49 @@ display:none;
 <div id="qrcode"></div>
 </div>
 
+<!-- 🔥 TIPOS DE PROYECTO -->
+<div id="menuProyectos" class="hidden">
+
+<h2>Tipos de Proyecto</h2>
+
+<select onchange="abrirProyecto(this.value)">
+<option value="">Selecciona Proyecto</option>
+<option value="impresora">Impresora 3D</option>
+<option value="laser">CNC Láser</option>
+<option value="soldar">Máquina de Soldar</option>
+</select>
+
+</div>
+
+<!-- 🔥 VENTANA VIDEO -->
+<div id="pantallaVideo" class="hidden">
+
+<div class="videoBox">
+
+<h2 id="tituloProyecto"></h2>
+
+<iframe id="videoFrame"></iframe>
+
+<p id="descripcionProyecto"></p>
+
+<button onclick="volver()">⬅ Regresar</button>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
 
-// 🔥 AUTO DETECTA TARJETA DESDE ESP32
-setInterval(()=>{
-
-fetch("/lastuid")
-.then(r=>r.text())
-.then(uid=>{
-
-if(uid!="" && uid!="null"){
-document.getElementById("control").value = uid;
-}
-
-});
-
-},1200);
-
-
-// 🔥 CREAR CREDENCIAL
 function registrar(){
 
 let nombre=document.getElementById("nombre").value;
 let control=document.getElementById("control").value;
 let carrera=document.getElementById("carrera").value;
 
-if(nombre==""||control==""||carrera==""){
-alert("Completa todo");
+if(nombre===""||control===""||carrera===""){
+alert("Completa todos los campos");
 return;
 }
 
@@ -122,13 +152,57 @@ let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
 
 document.getElementById("info").innerHTML=
 "Nombre: "+nombre+"<br>"+
-"UID: "+control+"<br>"+
+"No. Control: "+control+"<br>"+
 "Carrera: "+carrera;
 
 document.getElementById("tarjeta").classList.remove("hidden");
+document.getElementById("menuProyectos").classList.remove("hidden");
 
 document.getElementById("qrcode").innerHTML="";
 new QRCode(document.getElementById("qrcode"),link);
+
+}
+
+/* 🔥 PROYECTOS CON VIDEO */
+function abrirProyecto(tipo){
+
+if(tipo==="") return;
+
+let titulo="";
+let video="";
+let descripcion="";
+
+if(tipo==="impresora"){
+titulo="Uso de Impresora 3D";
+video="https://www.youtube.com/embed/1Q8cZ3Y5w5Y";
+descripcion="Aprende cómo preparar modelos e imprimir en 3D dentro del laboratorio.";
+}
+
+if(tipo==="laser"){
+titulo="Uso CNC Láser";
+video="https://www.youtube.com/embed/V1h8YkY6g3A";
+descripcion="Configuración y seguridad para trabajar con corte láser.";
+}
+
+if(tipo==="soldar"){
+titulo="Uso Máquina de Soldar";
+video="https://www.youtube.com/embed/7kZV9W5pY8A";
+descripcion="Procedimiento básico para soldadura en proyectos electrónicos.";
+}
+
+document.getElementById("tituloProyecto").innerText=titulo;
+document.getElementById("videoFrame").src=video;
+document.getElementById("descripcionProyecto").innerText=descripcion;
+
+document.getElementById("pantallaVideo").classList.remove("hidden");
+document.getElementById("menuProyectos").classList.add("hidden");
+
+}
+
+function volver(){
+
+document.getElementById("pantallaVideo").classList.add("hidden");
+document.getElementById("menuProyectos").classList.remove("hidden");
 
 }
 
