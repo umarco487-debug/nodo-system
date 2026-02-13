@@ -18,6 +18,18 @@ body{
   width:300px;
   border-radius:10px;
 }
+input, button{
+  margin-top:10px;
+  padding:5px;
+  width:90%;
+  border-radius:5px;
+  border:none;
+}
+button{
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -25,30 +37,53 @@ body{
 <h1>INNOVATEC RFID</h1>
 
 <div class="card">
-  <h3>Última Tarjeta Registrada</h3>
-  <p id="uid">Esperando tarjeta...</p>
+  <h3 id="estado">Esperando tarjeta...</h3>
+  <p id="uid"></p>
+
+  <!-- Formulario para registrar usuario -->
+  <div id="registro" style="display:none;">
+    <input type="text" id="username" placeholder="Nombre de usuario">
+    <button onclick="registrarUsuario()">Registrar Usuario</button>
+  </div>
+
+  <!-- Mensaje de éxito -->
   <p id="mensaje" style="color:lightgreen;"></p>
 </div>
 
 <script>
+let ultimoUID = "";
+
+// Función que consulta el UID al ESP32
 async function actualizarUID() {
   try {
     const response = await fetch("/lastuid");
     const uid = await response.text();
-    if(uid){
-      const uidElement = document.getElementById("uid");
-      if(uidElement.innerText !== "UID: "+uid){
-        uidElement.innerText = "UID: " + uid;
-        document.getElementById("mensaje").innerText = "Usuario registrado con éxito";
-      }
+    if(uid && uid !== ultimoUID){
+      ultimoUID = uid;
+      document.getElementById("uid").innerText = "UID: " + uid;
+      document.getElementById("estado").innerText = "Tarjeta registrada ✅";
+      document.getElementById("registro").style.display = "block";
+      document.getElementById("mensaje").innerText = "";
     }
-  } catch (err) {
+  } catch(err) {
     console.log("Error al obtener UID:", err);
   }
 }
 
-// Actualizar cada 1 segundo
-setInterval(actualizarUID,1000);
+// Registrar usuario
+function registrarUsuario() {
+  const username = document.getElementById("username").value.trim();
+  if(username){
+    document.getElementById("mensaje").innerText = `Usuario "${username}" registrado con UID ${ultimoUID}`;
+    document.getElementById("username").value = "";
+    // Aquí podrías enviar username+UID al ESP32 si quieres guardarlo
+  } else {
+    document.getElementById("mensaje").innerText = "Ingrese un nombre de usuario";
+  }
+}
+
+// Actualiza cada 1 segundo
+setInterval(actualizarUID, 1000);
 </script>
 
 </body>
