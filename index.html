@@ -3,44 +3,84 @@
 <head>
 <meta charset="UTF-8">
 <title>INNOVATEC RFID</title>
-
 <style>
 body{
-background:#0f172a;
-color:white;
-font-family:Arial;
-text-align:center;
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  text-align:center;
 }
 .card{
-background:#1e293b;
-padding:20px;
-margin:auto;
-margin-top:20px;
-width:300px;
-border-radius:10px;
+  background:#1e293b;
+  padding:20px;
+  margin:auto;
+  margin-top:20px;
+  width:300px;
+  border-radius:10px;
+}
+input, button{
+  margin-top:10px;
+  padding:5px;
+  width:90%;
+  border-radius:5px;
+  border:none;
+}
+button{
+  background:#3b82f6;
+  color:white;
+  cursor:pointer;
 }
 </style>
 </head>
-
 <body>
 
 <h1>INNOVATEC RFID</h1>
 
 <div class="card">
-<h3>Tarjeta Detectada</h3>
-<p id="uid">Esperando tarjeta...</p>
+  <h3>Tarjeta Detectada</h3>
+  <p id="uid">Esperando tarjeta...</p>
+
+  <!-- Formulario para registrar usuario -->
+  <div id="registro" style="display:none;">
+    <h4>Registrar Usuario</h4>
+    <input type="text" id="username" placeholder="Nombre de usuario">
+    <button onclick="registrarUsuario()">Registrar</button>
+  </div>
+
+  <!-- Mensaje de éxito -->
+  <p id="mensaje" style="color:lightgreen;"></p>
 </div>
 
 <script>
-
-// 🔥 leer UID desde URL
-const params = new URLSearchParams(window.location.search);
-const uid = params.get("uid");
-
-if(uid){
-document.getElementById("uid").innerText = "UID: " + uid;
+// Función para mostrar UID automáticamente
+async function obtenerUID() {
+  try {
+    const response = await fetch("/lastuid"); // pide UID al Arduino
+    const uid = await response.text();
+    if(uid){
+      document.getElementById("uid").innerText = "UID: " + uid;
+      document.getElementById("registro").style.display = "block"; // mostrar registro
+    }
+  } catch (err) {
+    console.log("Error al obtener UID:", err);
+  }
 }
 
+// Llamar la función cada 1 segundo para actualizar UID
+setInterval(obtenerUID, 1000);
+
+// Función para registrar usuario (simulado)
+function registrarUsuario(){
+  const username = document.getElementById("username").value;
+  const uid = document.getElementById("uid").innerText.replace("UID: ","");
+  if(username){
+    // Aquí se podría enviar a un servidor real o guardarlo en base de datos
+    document.getElementById("mensaje").innerText = "Usuario " + username + " registrado con UID " + uid;
+    document.getElementById("username").value = "";
+  } else {
+    document.getElementById("mensaje").innerText = "Ingrese un nombre de usuario";
+  }
+}
 </script>
 
 </body>
