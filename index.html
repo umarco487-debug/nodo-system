@@ -1,156 +1,73 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INNOVATEC</title>
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <SPI.h>
+#include <MFRC522.h>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+#define SS_PIN 5
+#define RST_PIN 22
+#define LED_VERDE 27
 
-<style>
-body{
-margin:0;
-font-family:Arial;
-color:white;
-background:url("https://cdjuarez.tecnm.mx/img/header/header_mob2.png");
-background-size:cover;
-background-attachment:fixed;
+const char* ssid = "TU_WIFI";
+const char* password = "TU_PASS";
+
+// 🔥 TU PAGINA
+String server = "https://innovatec-debug.github.io/rfid-innovatecc/?uid=";
+
+MFRC522 rfid(SS_PIN, RST_PIN);
+
+void setup(){
+
+Serial.begin(115200);
+
+WiFi.begin(ssid,password);
+
+while(WiFi.status()!=WL_CONNECTED){
+delay(500);
+Serial.print(".");
 }
 
-header{
-background:rgba(0,0,0,0.7);
-padding:20px;
-text-align:center;
+Serial.println("WiFi conectado");
+
+SPI.begin();
+rfid.PCD_Init();
+
+pinMode(LED_VERDE,OUTPUT);
 }
 
-.container{
-padding:30px;
-background:rgba(0,0,0,0.7);
-min-height:100vh;
+void loop(){
+
+if(!rfid.PICC_IsNewCardPresent()) return;
+if(!rfid.PICC_ReadCardSerial()) return;
+
+String uid="";
+
+for(byte i=0;i<rfid.uid.size;i++){
+uid += String(rfid.uid.uidByte[i],HEX);
+if(i<rfid.uid.size-1) uid += "-";
 }
 
-button{
-padding:10px 15px;
-background:#00ffd5;
-border:none;
-font-weight:bold;
-cursor:pointer;
-margin:5px;
+Serial.println("UID detectado: "+uid);
+
+// prender LED
+digitalWrite(LED_VERDE,HIGH);
+delay(1000);
+digitalWrite(LED_VERDE,LOW);
+
+// 🔥 enviar UID a pagina
+if(WiFi.status()==WL_CONNECTED){
+
+HTTPClient http;
+
+String url = server + uid;
+
+http.begin(url);
+int httpCode = http.GET();
+
+Serial.println("Enviado a web");
+Serial.println(httpCode);
+
+http.end();
 }
 
-.card{
-background:#111827;
-padding:20px;
-margin-top:20px;
-border-radius:10px;
-width:350px;
+rfid.PICC_HaltA();
 }
-
-.hidden{display:none;}
-video{width:500px;border-radius:10px;}
-</style>
-</head>
-
-<body>
-
-<header>
-<h1>INNOVATEC</h1>
-<p>Sistema NODO - RFID</p>
-</header>
-
-<div class="container">
-
-<h2>Selecciona Proyecto</h2>
-
-<button onclick="abrirProyecto('impresora')">Impresora 3D</button>
-<button onclick="abrirProyecto('laser')">CNC Láser</button>
-<button onclick="abrirProyecto('soldar')">Máquina de Soldar</button>
-
-<div id="videoSection" class="hidden">
-
-<h3 id="tituloProyecto"></h3>
-
-<video id="videoProyecto" controls></video>
-
-<p id="descripcion"></p>
-
-<button onclick="volverInicio()">⬅ Regresar</button>
-
-</div>
-
-<hr>
-
-<h2>Registro Usuario</h2>
-
-<input id="nombre" placeholder="Nombre"><br>
-<input id="control" placeholder="No Control"><br>
-<input id="carrera" placeholder="Carrera"><br>
-
-<button onclick="registrar()">Generar QR</button>
-
-<div id="tarjeta" class="card hidden">
-<p id="info"></p>
-<div id="qrcode"></div>
-</div>
-
-</div>
-
-<script>
-
-function abrirProyecto(tipo){
-
-document.querySelector("#videoSection").classList.remove("hidden");
-
-if(tipo==="impresora"){
-tituloProyecto.innerText="Uso Impresora 3D";
-videoProyecto.src="video1.mp4";
-descripcion.innerText="Proceso de impresión 3D en laboratorio.";
-}
-
-if(tipo==="laser"){
-tituloProyecto.innerText="Uso CNC Láser";
-videoProyecto.src="video2.mp4";
-descripcion.innerText="Corte láser paso a paso.";
-}
-
-if(tipo==="soldar"){
-tituloProyecto.innerText="Uso Máquina de Soldar";
-videoProyecto.src="video3.mp4";
-descripcion.innerText="Procedimiento seguro de soldadura.";
-}
-
-}
-
-function volverInicio(){
-document.querySelector("#videoSection").classList.add("hidden");
-videoProyecto.pause();
-}
-
-function registrar(){
-
-let nombre=nombreInput=document.getElementById("nombre").value;
-let control=document.getElementById("control").value;
-let carrera=document.getElementById("carrera").value;
-
-if(nombre==""||control==""||carrera==""){
-alert("Completa datos");
-return;
-}
-
-let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
-
-info.innerHTML=
-"Nombre: "+nombre+"<br>"+
-"Control: "+control+"<br>"+
-"Carrera: "+carrera;
-
-tarjeta.classList.remove("hidden");
-qrcode.innerHTML="";
-new QRCode(qrcode,link);
-
-}
-
-</script>
-
-</body>
-</html>
