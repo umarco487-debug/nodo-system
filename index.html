@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Innovatec PRO</title>
+<title>INNOVATEC</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-
 body{
 margin:0;
 font-family:Arial;
 color:white;
-background:url("header_mob2.png");
+background:url("https://cdjuarez.tecnm.mx/img/header/header_mob2.png");
 background-size:cover;
-background-position:center;
+background-attachment:fixed;
 }
 
 header{
@@ -24,68 +25,73 @@ text-align:center;
 
 .container{
 padding:30px;
-}
-
-.card{
 background:rgba(0,0,0,0.7);
-padding:20px;
-border-radius:10px;
-width:320px;
-margin-top:20px;
+min-height:100vh;
 }
 
 button{
 padding:10px 15px;
-background:#38bdf8;
+background:#00ffd5;
 border:none;
-cursor:pointer;
 font-weight:bold;
-margin-top:10px;
+cursor:pointer;
+margin:5px;
 }
 
-.hidden{
-display:none;
+.card{
+background:#111827;
+padding:20px;
+margin-top:20px;
+border-radius:10px;
+width:350px;
 }
 
-video{
-width:100%;
-margin-top:15px;
-}
-
+.hidden{display:none;}
+video{width:500px;border-radius:10px;}
 </style>
 </head>
 
 <body>
 
 <header>
-<h1>Innovatec</h1>
-<p>Sistema NODO TECNM</p>
+<h1>INNOVATEC</h1>
+<p>Sistema NODO - RFID</p>
 </header>
 
-<div class="container" id="inicio">
+<div class="container">
 
 <h2>Selecciona Proyecto</h2>
 
-<div class="card">
+<button onclick="abrirProyecto('impresora')">Impresora 3D</button>
+<button onclick="abrirProyecto('laser')">CNC Láser</button>
+<button onclick="abrirProyecto('soldar')">Máquina de Soldar</button>
 
-<button onclick="abrirProyecto('impresora')">Impresora 3D</button><br>
-<button onclick="abrirProyecto('laser')">CNC Láser</button><br>
-<button onclick="abrirProyecto('soldar')">Máquina Soldar</button>
+<div id="videoSection" class="hidden">
 
-</div>
-
-</div>
-
-<div class="container hidden" id="proyecto">
-
-<h2 id="tituloProyecto"></h2>
-
-<p id="descripcion"></p>
+<h3 id="tituloProyecto"></h3>
 
 <video id="videoProyecto" controls></video>
 
-<br>
-<button onclick="volver()">⬅ Regresar al inicio</button>
+<p id="descripcion"></p>
+
+<button onclick="volverInicio()">⬅ Regresar</button>
+
+</div>
+
+<hr>
+
+<h2>Registro Usuario</h2>
+
+<input id="nombre" placeholder="Nombre"><br>
+<input id="control" placeholder="No Control"><br>
+<input id="carrera" placeholder="Carrera"><br>
+
+<button onclick="registrar()">Generar QR</button>
+
+<div id="tarjeta" class="card hidden">
+<p id="info"></p>
+<div id="qrcode"></div>
+</div>
 
 </div>
 
@@ -93,36 +99,55 @@ margin-top:15px;
 
 function abrirProyecto(tipo){
 
-document.getElementById("inicio").classList.add("hidden");
-document.getElementById("proyecto").classList.remove("hidden");
-
-let titulo = document.getElementById("tituloProyecto");
-let desc = document.getElementById("descripcion");
-let video = document.getElementById("videoProyecto");
+document.querySelector("#videoSection").classList.remove("hidden");
 
 if(tipo==="impresora"){
-titulo.innerHTML="Impresora 3D";
-desc.innerHTML="Uso básico de impresión 3D dentro del laboratorio Innovatec.";
-video.src="impresora.mp4";
+tituloProyecto.innerText="Uso Impresora 3D";
+videoProyecto.src="video1.mp4";
+descripcion.innerText="Proceso de impresión 3D en laboratorio.";
 }
 
 if(tipo==="laser"){
-titulo.innerHTML="CNC Láser";
-desc.innerHTML="Proceso de corte láser para proyectos escolares.";
-video.src="laser.mp4";
+tituloProyecto.innerText="Uso CNC Láser";
+videoProyecto.src="video2.mp4";
+descripcion.innerText="Corte láser paso a paso.";
 }
 
 if(tipo==="soldar"){
-titulo.innerHTML="Máquina de Soldar";
-desc.innerHTML="Técnicas básicas de soldadura segura.";
-video.src="soldar.mp4";
+tituloProyecto.innerText="Uso Máquina de Soldar";
+videoProyecto.src="video3.mp4";
+descripcion.innerText="Procedimiento seguro de soldadura.";
 }
 
 }
 
-function volver(){
-document.getElementById("inicio").classList.remove("hidden");
-document.getElementById("proyecto").classList.add("hidden");
+function volverInicio(){
+document.querySelector("#videoSection").classList.add("hidden");
+videoProyecto.pause();
+}
+
+function registrar(){
+
+let nombre=nombreInput=document.getElementById("nombre").value;
+let control=document.getElementById("control").value;
+let carrera=document.getElementById("carrera").value;
+
+if(nombre==""||control==""||carrera==""){
+alert("Completa datos");
+return;
+}
+
+let link="https://innovatec-debug.github.io/rfid-innovatecc/?user="+control;
+
+info.innerHTML=
+"Nombre: "+nombre+"<br>"+
+"Control: "+control+"<br>"+
+"Carrera: "+carrera;
+
+tarjeta.classList.remove("hidden");
+qrcode.innerHTML="";
+new QRCode(qrcode,link);
+
 }
 
 </script>
